@@ -457,7 +457,11 @@ class _BoxPlotter(_CategoricalPlotter):
         props = {}
         for obj in ["box", "whisker", "cap", "median", "flier"]:
             props[obj] = kws.pop(obj + "props", {})
-
+        if 'positions' in kws:
+            positions = kws['positions']
+            del kws['positions']
+        else:
+            positions = list(range(len(self.plot_data)))
         for i, group_data in enumerate(self.plot_data):
 
             if self.plot_hues is None:
@@ -477,7 +481,7 @@ class _BoxPlotter(_CategoricalPlotter):
                 artist_dict = ax.boxplot(box_data,
                                          vert=vert,
                                          patch_artist=True,
-                                         positions=[i],
+                                         positions=[positions[i]],
                                          widths=self.width,
                                          **kws)
                 color = self.colors[i]
@@ -1372,10 +1376,14 @@ class _SwarmPlotter(_CategoricalScatterPlotter):
             ax.set_xlim(-.5, len(self.plot_data) - .5)
         else:
             ax.set_ylim(-.5, len(self.plot_data) - .5)
-
+        if 'positions' in kws:
+            positions = kws['positions']
+            del kws['positions']
+        else:
+            positions = list(range(len(self.plot_data)))
         # Plot each swarm
         for i, group_data in enumerate(self.plot_data):
-
+            pos = positions[i]
             if self.plot_hues is None or not self.dodge:
 
                 width = self.width
@@ -1396,7 +1404,7 @@ class _SwarmPlotter(_CategoricalScatterPlotter):
                 point_colors = self.point_colors[i][hue_mask][sorter]
 
                 # Plot the points in centered positions
-                cat_pos = np.ones(swarm_data.size) * i
+                cat_pos = np.ones(swarm_data.size) * pos
                 kws.update(c=point_colors)
                 if self.orient == "v":
                     points = ax.scatter(cat_pos, swarm_data, s=s, **kws)
